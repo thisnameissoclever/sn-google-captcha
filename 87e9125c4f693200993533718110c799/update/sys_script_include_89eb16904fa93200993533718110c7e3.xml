@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>global.CaptchaAjax</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description>Usage: &#13;
+From a client script, instantiage a new GlideAjax object, and pass "CaptchaAjax" into the constructor. &#13;
+From the client, add the parameter "sysparm_response_id", and populate it with the user's session ID response from the Google reCAPTCHA script.&#13;
+The returned answer in your callback function, will be a stringified (because AJAX) boolean value representing whether the user is validated or not.</description>
+        <name>CaptchaAjax</name>
+        <script><![CDATA[var CaptchaAjax = Class.create();
+CaptchaAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	/**
+ 	* processResponse is the function that should be called from the client-side GlideAjax instance
+ 	* @returns {*}
+ 		*/
+		processResponse: function() {
+			var responseID = this.getParameter('sysparm_response_id');
+			
+			try {
+				var RESTCAPTCHA = new sn_ws.RESTMessageV2();
+				RESTCAPTCHA.setHttpMethod('post');
+				RESTCAPTCHA.setEndpoint('https://www.google.com/recaptcha/api/siteverify');
+				RESTCAPTCHA.setQueryParameter('secret', gs.getProperty('recaptcha.secret-key'));
+				RESTCAPTCHA.setQueryParameter('response', responseID);
+				var captchaResponse = RESTCAPTCHA.execute();
+				if (captchaResponse.haveError()) {
+					gs.logError('Error in validating captcha response: ' + captchaResponse.getErrorMessage() + '. Status code: ' + captchaResponse.getStatusCode(), 'CaptchaAjax script include');
+					return false;
+				}
+				var successResponse = JSON.parse(captchaResponse.getBody()).success; //Relies on ES5 syntax. For ES3, use new JSON().decode(json_string);
+				return successResponse;
+			} catch (ex) {
+				gs.logError('Error in processing response from reCAPTCHA: ' + ex.message, 'CaptchaAjax script include');
+				return false;
+			}
+		},
+		
+		/**
+ 		* If this returns true, then the function can be accessed from a context without roles.
+ 		* @returns {boolean}
+ 			*/
+			isPublic: function() {
+				return true;
+			},
+			
+			type: 'CaptchaAjax'
+		});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-03-13 01:37:33</sys_created_on>
+        <sys_id>89eb16904fa93200993533718110c7e3</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>CaptchaAjax</sys_name>
+        <sys_package display_value="reCAPTCHA Integration" source="87e9125c4f693200993533718110c799">87e9125c4f693200993533718110c799</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="reCAPTCHA Integration">87e9125c4f693200993533718110c799</sys_scope>
+        <sys_update_name>sys_script_include_89eb16904fa93200993533718110c7e3</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-03-13 03:37:22</sys_updated_on>
+    </sys_script_include>
+</record_update>

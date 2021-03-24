@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sp_widget">
+    <sp_widget action="INSERT_OR_UPDATE">
+        <category/>
+        <client_script><![CDATA[function() {
+  /* widget controller */
+  var c = this;
+	/**
+	* c.checkCap should be called via ng-click, and will return a boolean value, 
+	* indicating whether the user is indeed validated to not be some sort of mechanized
+	* button-pushing device. 
+	* If the user has performed no such validation, then an alert is shown, admonishing
+	* them for attempting to take over the human race.
+	*/
+	c.checkCap = function() {
+		var resp;
+		c.data.captchaSession = grecaptcha.getResponse();
+		if (!c.data.captchaSession) {
+			alert('Nice try, robot. \nYour mighty microchips are no match for our CAPTCHA technology!');
+			resp = false;
+		}
+		c.server.update().then(function() {
+			var captchaResponse = c.data.captchaResponse;
+			if (captchaResponse) {
+				resp = isThisTrueOrWhat(captchaResponse);
+			}
+		});
+		grecaptcha.reset();
+		//Here, you might perform some action to allow or disallow submission based on the boolean value of the resp variable.
+		return resp; 
+	}
+}
+function isThisTrueOrWhat(b) {
+	return ((typeof b == 'string') ? (b.toLowerCase() == 'true') : (b == true)); //all this just to properly return a bool in JS. THERE'S GOT TO BE A BETTER WAY!
+}]]></client_script>
+        <controller_as>c</controller_as>
+        <css/>
+        <data_table>sp_instance</data_table>
+        <demo_data/>
+        <description>reCAPTCHA</description>
+        <docs/>
+        <field_list/>
+        <has_preview>false</has_preview>
+        <id>recaptcha</id>
+        <internal>false</internal>
+        <link/>
+        <name>reCAPTCHA</name>
+        <option_schema/>
+        <public>false</public>
+        <roles/>
+        <script><![CDATA[(function() {
+	/* populate the 'data' object */
+	/* e.g., data.table = $sp.getValue('table'); */
+	data.sitekey = gs.getProperty('recaptcha.site-key');
+	
+	if (input) {
+		data.captchaResponse = null;
+		data.captchaSession = input.captchaSession;
+		try {
+				var RESTCAPTCHA = new sn_ws.RESTMessageV2();
+				RESTCAPTCHA.setHttpMethod('post');
+				RESTCAPTCHA.setEndpoint('https://www.google.com/recaptcha/api/siteverify');
+				RESTCAPTCHA.setQueryParameter('secret', gs.getProperty('recaptcha.secret-key'));
+				RESTCAPTCHA.setQueryParameter('response', data.captchaSession);
+				var captchaResponse = RESTCAPTCHA.execute();
+				if (captchaResponse.haveError()) {
+					gs.logError('Error in validating captcha response: ' + captchaResponse.getErrorMessage() + '. Status code: ' + captchaResponse.getStatusCode(), 'CaptchaAjax script include');
+					data.captchaResponse = false;
+				}
+				var successResponse = JSON.parse(captchaResponse.getBody()).success; //Relies on ES5 syntax. For ES3, use new JSON().decode(json_string);
+				data.captchaResponse = successResponse;
+			} catch (ex) {
+				gs.logError('Error in processing response from reCAPTCHA: ' + ex.message, 'CaptchaAjax script include');
+				data.captchaResponse = false;
+			}
+	}
+})();]]></script>
+        <servicenow>false</servicenow>
+        <sys_class_name>sp_widget</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-03-13 00:33:35</sys_created_on>
+        <sys_id>ff4b4e184f693200993533718110c789</sys_id>
+        <sys_mod_count>16</sys_mod_count>
+        <sys_name>reCAPTCHA</sys_name>
+        <sys_package display_value="Global" source="global">global</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="reCAPTCHA Integration">87e9125c4f693200993533718110c799</sys_scope>
+        <sys_update_name>sp_widget_ff4b4e184f693200993533718110c789</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-03-13 03:23:03</sys_updated_on>
+        <template><![CDATA[<script src='https://www.google.com/recaptcha/api.js'></script>
+<body>
+	<div class="g-recaptcha" data-sitekey="{{data.sitekey}}"></div>
+	<input type="button" value="Test" ng-click="c.checkCap()" />
+</body>]]></template>
+    </sp_widget>
+</record_update>

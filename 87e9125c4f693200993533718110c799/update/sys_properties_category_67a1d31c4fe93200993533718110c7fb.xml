@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_properties_category">
+    <sys_properties_category action="INSERT_OR_UPDATE">
+        <name>reCAPTCHA</name>
+        <sys_class_name>sys_properties_category</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2017-03-13 05:33:40</sys_created_on>
+        <sys_id>67a1d31c4fe93200993533718110c7fb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>reCAPTCHA</sys_name>
+        <sys_package display_value="reCAPTCHA Integration" source="87e9125c4f693200993533718110c799">87e9125c4f693200993533718110c799</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="reCAPTCHA Integration">87e9125c4f693200993533718110c799</sys_scope>
+        <sys_update_name>sys_properties_category_67a1d31c4fe93200993533718110c7fb</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2017-03-13 05:33:40</sys_updated_on>
+        <title><![CDATA[<p>Settings for the Google ReCAPTCHA implementation on this instance. </p>
+<p>See more info, at the <a title="Google reCAPTCHA site" href="https://www.google.com/recaptcha/" target="_blank" rel="nofollow">Google reCAPTCHA site</a>.</p>]]></title>
+    </sys_properties_category>
+    <sys_translated_text action="delete_multiple" query="documentkey=67a1d31c4fe93200993533718110c7fb"/>
+</record_update>
